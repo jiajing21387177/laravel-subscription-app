@@ -129,11 +129,7 @@ return [
     |
     */
 
-    'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
-        ],
-    ],
+    'already_subscribed' => 'You had already subscribed to a plan.',
 
     /*
     |--------------------------------------------------------------------------

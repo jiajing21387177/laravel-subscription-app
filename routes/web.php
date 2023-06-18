@@ -22,3 +22,5 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
+
+Route::post('/subscribe', [App\Http\Controllers\UserSubscriptionController::class, 'subscribe'])->name('subscribe');
