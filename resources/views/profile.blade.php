@@ -44,6 +44,14 @@
                                 {{ $user->email_verified_at }}
                             </div>
                         </div>
+                        <h2 class="mt-4">
+                            {{ __('Subscription') }}
+                        </h2>
+                        <hr>
+                        @includeWhen(empty($user->subscription), 'subscription.subscriptionList', [
+                            'subscriptionPlans' => $subscriptionPlans,
+                        ])
+                        <hr>
                     </div>
                 </div>
             </div>
