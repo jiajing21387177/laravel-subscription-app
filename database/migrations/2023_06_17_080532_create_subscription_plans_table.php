@@ -16,7 +16,7 @@ class CreateSubscriptionPlansTable extends Migration
         Schema::create('subscription_plans', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('text');
+            $table->text('description');
             $table->decimal('price', 8, 2);
             $table->integer('duration')->default(30)->comment('How long does the plan last after user subscribed in days.');
             $table->timestamps();
