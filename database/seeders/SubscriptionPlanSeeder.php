@@ -34,19 +34,19 @@ class SubscriptionPlanSeeder extends Seeder
         $plans = [
             [
                 'name' => 'Free',
-                'description' => $this->faker->paragraphs(),
+                'description' => implode("\n", $this->faker->paragraphs(rand(2, 5))),
                 'price' => 0,
                 'duration' => 30 // 30 days for Free plan
             ],
             [
                 'name' => 'Monthly',
-                'description' => $this->faker->paragraphs(),
+                'description' => implode("\n", $this->faker->paragraphs(rand(2, 5))),
                 'price' => 10,
                 'duration' => 30 // 30 days for Monthly plan
             ],
             [
                 'name' => 'Yearly',
-                'description' => $this->faker->paragraphs(),
+                'description' => implode("\n", $this->faker->paragraphs(rand(2, 5))),
                 'price' => 100,
                 'duration' => 365 // 365 days for Yearly plan
             ]
