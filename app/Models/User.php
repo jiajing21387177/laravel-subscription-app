@@ -37,4 +37,15 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function subscriptionHistory()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(UserSubscription::class)
+            ->whereRaw('UTC_TIMESTAMP() BETWEEN subscription_start_datetime AND subscription_end_datetime');
+    }
 }
