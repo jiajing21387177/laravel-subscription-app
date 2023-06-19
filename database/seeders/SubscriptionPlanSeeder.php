@@ -14,14 +14,18 @@ class SubscriptionPlanSeeder extends Seeder
      */
     protected $faker;
 
+    protected $stripe;
+
     /**
-     * Create new faker instance.
+     * Create new faker and stripe instance.
      *
      * @return void
      */
     public function __construct()
     {
         $this->faker = \Faker\Factory::create();
+
+        $this->stripe = new \Stripe\StripeClient(config('payment.stripe.app_secret'));
     }
 
     /**
@@ -31,29 +35,45 @@ class SubscriptionPlanSeeder extends Seeder
      */
     public function run()
     {
+        // Create Stripe product
+        $product = $this->stripe->products->create([
+            'name' => 'Subscription Plan',
+        ]);
+
         $plans = [
             [
                 'name' => 'Free',
                 'description' => implode("\n", $this->faker->paragraphs(rand(2, 5))),
                 'price' => 0,
-                'duration' => 30 // 30 days for Free plan
+                'recurring' => 'month' // Subscription bill every month
             ],
             [
                 'name' => 'Monthly',
                 'description' => implode("\n", $this->faker->paragraphs(rand(2, 5))),
                 'price' => 10,
-                'duration' => 30 // 30 days for Monthly plan
+                'recurring' => 'month' // Subscription bill every month
             ],
             [
                 'name' => 'Yearly',
                 'description' => implode("\n", $this->faker->paragraphs(rand(2, 5))),
                 'price' => 100,
-                'duration' => 365 // 365 days for Yearly plan
+                'recurring' => 'year' // Subscription bill every year
             ]
         ];
 
         foreach ($plans as $plan) {
-            SubscriptionPlan::create($plan);
+            // Create Stripe price object
+            $price = $this->stripe->prices->create([
+                'unit_amount' => $plan['price'] * 100,
+                'currency' => 'myr',
+                'recurring' => ['interval' => $plan['recurring']],
+                'product' => $product->id,
+            ]);
+
+            SubscriptionPlan::create($plan + [
+                'stripe_product_id' => $product->id,
+                'stripe_price_id' => $price->id
+            ]);
         }
     }
 }
