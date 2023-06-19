@@ -18,7 +18,9 @@ class CreateSubscriptionPlansTable extends Migration
             $table->string('name');
             $table->text('description');
             $table->decimal('price', 8, 2);
-            $table->integer('duration')->default(30)->comment('How long does the plan last after user subscribed in days.');
+            $table->enum('recurring', ['day', 'week', 'month', 'year'])->comment('Subscription bill in day/week/month/year.');
+            $table->string('stripe_product_id')->comment('Details: https://stripe.com/docs/api/products/object');
+            $table->string('stripe_price_id')->comment('Details: https://stripe.com/docs/api/prices/object');
             $table->timestamps();
         });
     }
