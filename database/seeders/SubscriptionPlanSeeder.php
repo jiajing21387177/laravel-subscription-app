@@ -14,6 +14,11 @@ class SubscriptionPlanSeeder extends Seeder
      */
     protected $faker;
 
+    /**
+     * The Stripe instance.
+     *
+     * @var \Stripe\StripeClient
+     */
     protected $stripe;
 
     /**
