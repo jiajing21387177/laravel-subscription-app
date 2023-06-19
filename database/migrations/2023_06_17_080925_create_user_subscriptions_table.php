@@ -17,8 +17,8 @@ class CreateUserSubscriptionsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('subscription_plan_id');
-            $table->date('subscription_start_datetime');
-            $table->date('subscription_end_datetime');
+            $table->dateTime('subscription_start_datetime')->nullable();
+            $table->dateTime('subscription_end_datetime')->nullable();
             $table->string('stripe_subscription_id')->nullable();
             $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending');
             $table->boolean('is_canceled')->default(false)->comment('To recognize the user has discontinue the subscription.');
