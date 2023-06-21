@@ -29,7 +29,14 @@ class StripeWebhookController extends Controller
         $this->stripe = new \Stripe\StripeClient(config('payment.stripe.app_secret'));
     }
 
-    public function handleWebhook(Request $request)
+    /**
+     * Function for Stripe webhook event handler.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     * @link https://stripe.com/docs/webhooks/stripe-events
+     */
+    public function handleWebhook(Request $request): \Illuminate\Http\Response
     {
         // Retrieve the event data from the request
         $payload = $request->getContent();
@@ -67,19 +74,31 @@ class StripeWebhookController extends Controller
         return response('Webhook received successfully');
     }
 
+    /**
+     * Create user subscription when invoice created.
+     *
+     * @param Event $event
+     * @link https://stripe.com/docs/webhooks/stripe-events#example-event
+     */
     private function handleSubscriptionInvoiceCreated(Event $event)
     {
+        // Retrieve the subscription details from the event
         $subscription = $this->stripe->subscriptions->retrieve($event->data->object->subscription);
 
+        // Find the corresponding subscription plan based on the price ID
         $plan = SubscriptionPlan::where('stripe_price_id', $subscription->items->data[0]->price->id)
             ->first();
 
+        // Abort if the subscription plan is not found
         abort_if(!$plan, 404, 'Subscription plan not found.');
 
+        // Find the user associated with the subscription
         $user = User::where('stripe_customer_id', $subscription->customer)->first();
 
-        abort_if(!$plan, 404, 'User not found.');
+        // Abort if the user is not found
+        abort_if(!$user, 404, 'User not found.');
 
+        // Create or update the user subscription record
         UserSubscription::updateOrCreate(
             [
                 'stripe_invoice_id' => $event->data->object->id,
@@ -95,14 +114,28 @@ class StripeWebhookController extends Controller
         );
     }
 
+    /**
+     * Update user subscription payment status.
+     *
+     * @param Event $event
+     * @link https://stripe.com/docs/webhooks/stripe-events#example-event
+     */
     private function handleSubscriptionPaymentSucceed(Event $event)
     {
+        // Update the payment status of the user subscription to 'paid' when payment is successful
         UserSubscription::where(['stripe_invoice_id' => $event->data->object->id])
             ->update(['payment_status' => 'paid']);
     }
 
+    /**
+     * Update user subscription payment status.
+     *
+     * @param Event $event
+     * @link https://stripe.com/docs/webhooks/stripe-events#example-event
+     */
     private function handleSubscriptionPaymentFail(Event $event)
     {
+        // Update the payment status of the user subscription to 'failed' when payment fails
         $invoice = $event->data->object->id;
         UserSubscription::where(['stripe_invoice_id' => $event->data->object->id])
             ->update(['payment_status' => 'failed']);

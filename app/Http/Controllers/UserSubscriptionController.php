@@ -30,7 +30,13 @@ class UserSubscriptionController extends Controller
         $this->stripe = new \Stripe\StripeClient(config('payment.stripe.app_secret'));
     }
 
-    public function subscribe(Request $request)
+    /**
+     * Create Stripe customer for user and create a checkout session for subscription.
+     *
+     * @param Request $request subscription_plans' id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function subscribe(Request $request): \Illuminate\Http\RedirectResponse
     {
         $user = auth()->user();
 
@@ -64,7 +70,13 @@ class UserSubscriptionController extends Controller
         return redirect($checkoutSession->url);
     }
 
-    public function unsubscribe(Request $request)
+    /**
+     * Function to unsubscribe Stripe's subscription for user.
+     *
+     * @param Request $request user_subscriptions' id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function unsubscribe(Request $request): \Illuminate\Http\RedirectResponse
     {
         $validator = Validator::make($request->all(), [
             'user_subscription_id' => 'required|exists:user_subscriptions,id',
