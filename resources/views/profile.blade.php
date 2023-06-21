@@ -44,6 +44,15 @@
                                 {{ $user->email_verified_at }}
                             </div>
                         </div>
+                        <h2 class="mt-4">
+                            {{ __('Subscription') }}
+                        </h2>
+                        <hr>
+                        @include('subscription.subscriptionList', [
+                            'subscriptionPlans' => $subscriptionPlans,
+                            'user' => $user,
+                        ])
+                        <hr>
                     </div>
                 </div>
             </div>

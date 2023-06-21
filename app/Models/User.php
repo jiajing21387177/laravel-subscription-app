@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'stripe_customer_id'
     ];
 
     /**
@@ -37,4 +37,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function subscriptionHistory()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(UserSubscription::class)
+            ->whereIn('payment_status', ['pending', 'paid'])
+            ->whereRaw('UTC_TIMESTAMP() BETWEEN subscription_start_datetime AND subscription_end_datetime');
+    }
 }
