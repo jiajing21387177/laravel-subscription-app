@@ -40,8 +40,7 @@
                             <div class="col-6 col-md-3 font-weight-bold">
                                 {{ __('Verified at') }}
                             </div>
-                            <div class="col-6 col-md-3">
-                                {{ $user->email_verified_at }}
+                            <div id="email-verified-at" class="col-6 col-md-3">
                             </div>
                         </div>
                         <h2 class="mt-4">
@@ -58,4 +57,8 @@
             </div>
         </div>
     </div>
+    <script>
+        const datetime = moment.utc('{{ $user->email_verified_at }}').local().format('LLL')
+        document.getElementById('email-verified-at').innerText = datetime
+    </script>
 @endsection
