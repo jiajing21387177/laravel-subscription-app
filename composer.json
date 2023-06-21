@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "jiajing21387177/laravel-subscription-app",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "Web application built with Laravel for handling subscription plans, enabling users to choose from various pricing options and securely process payments through a payment gateway.",
     "keywords": [
         "framework",
         "laravel"
