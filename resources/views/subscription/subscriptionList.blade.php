@@ -41,7 +41,8 @@
                         @if ($user->subscription->is_canceled === 0)
                             <form action="{{ route('unsubscribe') }}" method="POST">
                                 @csrf
-                                <input type="hidden" name="user_subscription_id" value="{{ $userSubscription->id }}">
+                                <input type="hidden" name="user_subscription_id"
+                                    value="{{ $user->subscription->id }}">
                                 <button type="submit" class="btn btn-danger btn-block">
                                     {{ __('Unsubscribe') }}
                                 </button>

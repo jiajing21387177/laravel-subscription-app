@@ -27,6 +27,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/subscribe', [App\Http\Controllers\UserSubscriptionController::class, 'subscribe'])->name('subscribe');
     Route::post('/unsubscribe', [App\Http\Controllers\UserSubscriptionController::class, 'unsubscribe'])->name('unsubscribe');
 
-    Route::get('/subscribe/success', [App\Http\Controllers\UserSubscriptionController::class, 'checkoutSuccess'])->name('checkout.success');
-    Route::get('/subscribe/cancel', [App\Http\Controllers\UserSubscriptionController::class, 'checkoutCancel'])->name('checkout.success');
+    Route::get('/subscribe/success', fn () => view('payment.success'));
+    Route::get('/subscribe/cancel', fn () => view('payment.cancel'));
 });
+
+Route::post('/stripe/webhook', [App\Http\Controllers\StripeWebhookController::class, 'handleWebhook']);

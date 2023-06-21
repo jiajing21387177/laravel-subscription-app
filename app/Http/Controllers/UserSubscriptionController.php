@@ -125,13 +125,6 @@ class UserSubscriptionController extends Controller
      */
     protected function createStripeCheckoutSession(User $user, SubscriptionPlan $plan)
     {
-        // Save the subscription record into the database
-        $subscription = UserSubscription::create([
-            'user_id' => $user->id,
-            'subscription_plan_id' => $plan->id,
-            'payment_status' => 'checkout',
-        ]);
-
         $checkoutSession = $this->stripe->checkout->sessions->create([
             'customer' => $user->stripe_customer_id,
             'line_items' => [[
@@ -139,88 +132,10 @@ class UserSubscriptionController extends Controller
                 'quantity' => 1,
             ]],
             'mode' => 'subscription',
-            'success_url' => config('app.url') . "/subscribe/success?user_subscription_id=$subscription->id",
-            'cancel_url' => config('app.url') . "/subscribe/cancel?user_subscription_id=$subscription->id",
+            'success_url' => config('app.url') . "/subscribe/success",
+            'cancel_url' => config('app.url') . "/subscribe/cancel",
         ]);
 
-        $subscription->stripe_checkout_session_id = $checkoutSession->id;
-        $subscription->save();
-
         return $checkoutSession;
-    }
-
-    /**
-     * Handle the successful completion of a checkout session for a user subscription.
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request object
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
-     */
-    public function checkoutSuccess(Request $request)
-    {
-        $payload = UserSubscription::getUserSubscriptionWithCheckoutSession((int) $request->input('user_subscription_id'));
-
-        if ($payload instanceof \Illuminate\Http\RedirectResponse) {
-            return $payload;
-        }
-
-        $checkoutSession = $this->stripe->checkout->sessions->retrieve(
-            $payload->stripe_checkout_session_id,
-            []
-        );
-
-        abort_if($checkoutSession->status !== 'complete', 400, 'Subscription failed.');
-
-        switch ($checkoutSession->payment_status) {
-            case 'paid':
-            case 'no_payment_required':
-                $payload->payment_status = 'paid';
-                break;
-            case 'unpaid':
-                $payload->payment_status = 'pending';
-                break;
-        }
-
-        $subscription = $this->stripe->subscriptions->retrieve(
-            $checkoutSession->subscription,
-            []
-        );
-
-        $payload->stripe_subscription_id = $subscription->id;
-        $payload->subscription_start_datetime = gmdate('Y-m-d H:i:s', $subscription->current_period_start);
-        $payload->subscription_end_datetime = gmdate('Y-m-d H:i:s', $subscription->current_period_end);
-
-        $payload->save();
-
-        return redirect('/profile');
-    }
-
-    /**
-     * Cancel the checkout process for a user subscription.
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request object
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
-     */
-    public function checkoutCancel(Request $request)
-    {
-        $payload = UserSubscription::getUserSubscriptionWithCheckoutSession((int) $request->input('user_subscription_id'));
-
-        if ($payload instanceof \Illuminate\Http\RedirectResponse) {
-            return $payload;
-        }
-
-        $user = auth()->user();
-
-        abort_if($user->id !== $payload->user_id, 403, 'Fail to cancel checkout.');
-
-        $checkoutSession = $this->stripe->checkout->sessions->expire(
-            $payload->stripe_checkout_session_id,
-            []
-        );
-
-        if ($checkoutSession->status === 'expired') {
-            $payload->delete();
-        }
-
-        return redirect('/profile');
     }
 }
