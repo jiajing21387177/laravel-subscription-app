@@ -48,7 +48,7 @@ Before running this project, make sure you have the following installed on your 
 
 7. Run the database migrations:
 
-    php artisan migrate
+    php artisan migrate --seed
 
 8. Build the front-end assets:
 
