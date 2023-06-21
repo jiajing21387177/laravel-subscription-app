@@ -19,8 +19,14 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::middleware('auth')->group(function () {
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
 
-Route::post('/subscribe', [App\Http\Controllers\UserSubscriptionController::class, 'subscribe'])->name('subscribe');
+    Route::post('/subscribe', [App\Http\Controllers\UserSubscriptionController::class, 'subscribe'])->name('subscribe');
+    Route::post('/unsubscribe', [App\Http\Controllers\UserSubscriptionController::class, 'unsubscribe'])->name('unsubscribe');
+
+    Route::get('/subscribe/success', [App\Http\Controllers\UserSubscriptionController::class, 'checkoutSuccess'])->name('checkout.success');
+    Route::get('/subscribe/cancel', [App\Http\Controllers\UserSubscriptionController::class, 'checkoutCancel'])->name('checkout.success');
+});

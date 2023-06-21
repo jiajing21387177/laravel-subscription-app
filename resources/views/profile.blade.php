@@ -48,8 +48,9 @@
                             {{ __('Subscription') }}
                         </h2>
                         <hr>
-                        @includeWhen(empty($user->subscription), 'subscription.subscriptionList', [
+                        @include('subscription.subscriptionList', [
                             'subscriptionPlans' => $subscriptionPlans,
+                            'user' => $user,
                         ])
                         <hr>
                     </div>
